@@ -14,9 +14,9 @@ def main():
             case '2':
                 consulta()
             case '3':
-                print("")
+                atualizar()
             case '4':
-                print("")
+                deletar()
             case '5':
                 print("")
             case '6':
@@ -32,7 +32,7 @@ class tipoativo(Enum):
     SERVIDOR = 2
     ROTEADOR = 3
     SOFTWARE_LICENCIADO = 4
-    BANDCO_DE_DADOS = 5
+    BANCO_DE_DADOS = 5
 
 inventario = {}
 
@@ -127,6 +127,71 @@ def consulta():
 
     else:
         print(f"Nenhum ativo encontrado pela busca {termo}")
+
+    
+def atualizar():
+    print("\nAtualização de ativos")
+
+    if not inventario:
+        print("\nO inventário está vazio!")
+        return
+        
+    try:
+        id_busca = int(input("Qual ativo deseja atualizar? ID:"))
+    except ValueError:
+        print("Erro! O ID é sempre um número inteiro.")
+        return
+        
+    if id_busca in inventario:
+        ativo = inventario[id_busca]
+        print(f"\nAtivo {ativo['nome']} encontrado!")
+        print("Apenas aperte Enter caso não queira modificar um campo:")
+        novo_nome = input(f"Nome atual: {ativo['nome']} / Novo nome:").strip()
+        novo_responsavel = input(f"Responsável atual: {ativo['responsavel']} / Novo responsável:").strip()
+        novo_setor = input(f"Setor atual: {ativo['setor']} / Novo setor:").strip()
+
+        if novo_nome:
+            ativo['nome'] = novo_nome
+        if novo_responsavel:
+            ativo['responsavel'] = novo_responsavel
+        if novo_setor:
+            ativo['setor'] = novo_setor
+            
+        print(f"\nAtivo {id_busca} atualizado com sucesso!")
+        
+    else:
+        print(f"\nErro! Ativo {ativo[id_busca]} não encontrado.")
+
+
+def deletar():
+    print("Deletar Ativo:")
+
+    if not inventario:
+        print("Não é possível realizar a ação pois o inventário está vazio!")
+        return
+    
+    try:
+        id_busca = int(input("Digite o ID do ativo que deseja excluir:"))
+    except ValueError:
+        print("O ID deve ser um número inteiro positivo!")
+        return
+    
+    if id_busca in inventario:
+        ativo = inventario[id_busca]
+        while True:
+            try:
+                confirmar = int(input(f"\nTem certeza que deseja excluir o ativo: {ativo['nome']}?\nDigite 1 para confirmar e qualquer outro número para cancelar:"))
+                break
+            except ValueError:
+                print("Digite apenas números, não caracteres!") 
+                continue
+        if confirmar == 1:
+            del inventario[id_busca]
+            print(f"Ativo {id_busca} deletado com sucesso!")
+        else:
+            print("Exclusão cancelada!")
+    else:
+        print(f"Erro! Ativo {id_busca} não encontrado!")
 
 
 if __name__ == "__main__":
