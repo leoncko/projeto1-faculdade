@@ -1,4 +1,24 @@
 from enum import Enum
+import json
+
+ARQ_DADOS = "inventario.txt"
+
+def carregar_dados():
+    try:
+        with open(ARQ_DADOS, "r") as f:
+            dados = json.load(f)
+            inventario2 = {}
+            for id_texto, dados_ativo in dados.items():
+                inventario2[int(id_texto)] = dados_ativo
+            return inventario2
+    except FileNotFoundError:
+        return {}
+
+
+def salvar_dados():
+    with open(ARQ_DADOS, "w") as f:
+        json.dump(inventario, f, indent=4)
+
 
 def main():
     print("Sistema de inventário")
@@ -18,9 +38,9 @@ def main():
             case '4':
                 deletar()
             case '5':
-                print("")
+                cadastrar_vul()
             case '6':
-                print("")
+                consultar_vul()
             case '0':
                 print("\nEncerrado sistema...")
                 break
@@ -34,7 +54,7 @@ class tipoativo(Enum):
     SOFTWARE_LICENCIADO = 4
     BANCO_DE_DADOS = 5
 
-inventario = {}
+inventario = carregar_dados()
 
 
 def menu():
@@ -89,6 +109,7 @@ def cadastro():
     }
 
     print(f"\nAtivo {nome} com ID: {id_ativo} - cadastrado com sucesso!")
+    salvar_dados()
 
 
 def consulta():
@@ -158,6 +179,7 @@ def atualizar():
             ativo['setor'] = novo_setor
             
         print(f"\nAtivo {id_busca} atualizado com sucesso!")
+        salvar_dados()
         
     else:
         print(f"\nErro! Ativo {ativo[id_busca]} não encontrado.")
@@ -188,11 +210,78 @@ def deletar():
         if confirmar == 1:
             del inventario[id_busca]
             print(f"Ativo {id_busca} deletado com sucesso!")
+            salvar_dados()
         else:
             print("Exclusão cancelada!")
     else:
         print(f"Erro! Ativo {id_busca} não encontrado!")
 
+
+def cadastrar_vul():
+    print("\nCadastro de vulnerabilidades:")
+
+    if not inventario:
+        print("O inventário está vazio, não é possivel cadastrar!")
+        return
+
+    try:
+        id_busca = int(input("Digite o ID do ativo vulneravel:"))
+    except ValueError:
+        print("Erro! O ID é um número inteiro.")
+        return
+
+    if id_busca in inventario:
+        ativo = inventario[id_busca]
+        print(f"\nAtivo selecionado: {ativo['nome']}")
+        
+        descricao = input("Descreva a vulnerabilidade: ").strip()
+        if not descricao:
+            print("A descrição não pode ficar vazia, processo cancelado!")
+            return
+        
+        gravidade = input("Qual a gravidade? (Baixa/Media/Grave/Extrema): ").strip().upper()
+        if gravidade not in ["BAIXA", "MEDIA", "GRAVE", "EXTREMA"]:
+            print("Erro! Gravidade inválida ou em branco. Use apenas Baixa, Media, Grave ou Extrema.")
+            return
+        
+        nova_vul = {
+            "descricao": descricao,
+            "gravidade": gravidade
+        }
+        
+        ativo['vulnerabilidades'].append(nova_vul)
+        print(f"\nVulnerabilidade registrada no ativo '{ativo['nome']}'.")
+        salvar_dados()
+    else:
+        print(f"Erro! Ativo com ID {id_busca} não encontrado.")
+
+
+def consultar_vul():
+    print("\nConsulta de vulnerabilidades:")
+
+    if not inventario:
+        print("Não há como consultar pois o inventário está vazio!")
+        return
+
+    try:
+        id_busca = int(input("Digite o ID do ativo para ver suas vulnerabilidades: "))
+    except ValueError:
+        print("Erro: O ID é um número inteiro.")
+        return
+
+    if id_busca in inventario:
+        ativo = inventario[id_busca]
+        print(f"\nVulnerabilidades do Ativo: {ativo['nome']}")
+        
+        lista_vul = ativo['vulnerabilidades']
+        
+        if len(lista_vul) == 0:
+            print("Nenhuma vulnerabilidade registrada nesse ativo!")
+        else:
+            for id, vul in enumerate(lista_vul, start=1):
+                print(f"{id}. Descrição: {vul['descricao']} | Gravidade: {vul['gravidade']}")
+    else:
+        print(f"Erro! Ativo com ID {id_busca} não encontrado.")
 
 if __name__ == "__main__":
     main()
