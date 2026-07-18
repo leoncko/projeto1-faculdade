@@ -1,0 +1,14 @@
+{
+    "123": {
+        "nome": "jotinha",
+        "responsavel": "igorfina",
+        "setor": "ufu",
+        "tipo": "SERVIDOR",
+        "vulnerabilidades": [
+            {
+                "descricao": "wkfjnwjbfw",
+                "gravidade": "BAIXA"
+            }
+        ]
+    }
+}
